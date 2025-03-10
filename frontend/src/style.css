@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles below */
+:root {
+  --primary-color: #4f46e5;
+  --secondary-color: #10b981;
+  --accent-color: #f59e0b;
+  --danger-color: #ef4444;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --info-color: #3b82f6;
+  --background-light: #ffffff;
+  --background-dark: #1f2937;
+  --text-light: #f9fafb;
+  --text-dark: #111827;
+}
+
+/* Dark mode support */
+.dark {
+  --background-color: var(--background-dark);
+  --text-color: var(--text-light);
+}
+
+/* Light mode (default) */
+:root {
+  --background-color: var(--background-light);
+  --text-color: var(--text-dark);
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+} 
