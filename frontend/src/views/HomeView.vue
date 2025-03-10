@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useAuthStore } from '../stores/auth'
+import { useRouter } from 'vue-router'
 
-const authStore = useAuthStore()
+const router = useRouter()
 </script>
 
 <template>
@@ -21,18 +21,10 @@ const authStore = useAuthStore()
         
         <div class="flex gap-4 mt-6">
           <button 
-            v-if="!authStore.isAuthenticated" 
             class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded"
-            @click="$router.push('/login')"
+            @click="router.push('/login')"
           >
             Login
-          </button>
-          <button 
-            v-if="authStore.isAuthenticated" 
-            class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded"
-            @click="$router.push('/contracts')"
-          >
-            View Contracts
           </button>
         </div>
       </div>

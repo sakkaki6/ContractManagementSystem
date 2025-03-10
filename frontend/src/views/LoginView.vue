@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import axios from 'axios'
 
 const router = useRouter()
-const authStore = useAuthStore()
 
 const email = ref('')
 const password = ref('')
@@ -15,13 +14,21 @@ const login = async () => {
     errorMessage.value = 'Please enter both email and password'
     return
   }
-  
-  const success = await authStore.login(email.value, password.value)
-  
-  if (success) {
-    router.push('/contracts')
-  } else {
-    errorMessage.value = authStore.error || 'Login failed'
+
+  try {
+    const response = await axios.post('/api/auth/login', {
+      email: email.value,
+      password: password.value
+    })
+
+    // Assuming the response contains a token
+    const token = response.data.token
+    localStorage.setItem('authToken', token)
+
+    // Redirect to home or dashboard
+    router.push('/')
+  } catch (error) {
+    errorMessage.value = 'Login failed. Please check your credentials and try again.'
   }
 }
 </script>
@@ -64,9 +71,8 @@ const login = async () => {
           <button
             type="submit"
             class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-            :disabled="authStore.loading"
           >
-            {{ authStore.loading ? 'Logging in...' : 'Login' }}
+            Login
           </button>
         </div>
       </form>
