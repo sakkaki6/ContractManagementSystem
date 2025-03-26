@@ -1,2 +1,4 @@
-frontend/* linguist-detectable=true
-backend/* linguist-detectable=true
+*.json linguist-vendored
+*.lock linguist-vendored
+node_modules/ linguist-vendored
+dist/ linguist-vendored
