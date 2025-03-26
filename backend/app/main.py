@@ -10,6 +10,12 @@ from app.core.config import settings
 from app.db.session import engine
 from app.db.base import Base
 
+app = FastAPI()
+
+@app.get("/")
+async def read_root():
+   return {"Hello": "World"}
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description=settings.PROJECT_DESCRIPTION,

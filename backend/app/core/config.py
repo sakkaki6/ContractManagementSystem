@@ -1,5 +1,6 @@
 import os
 import secrets
+import json
 from typing import List, Optional, Dict, Any, Union
 
 from pydantic import AnyHttpUrl, PostgresDsn, field_validator
@@ -21,15 +22,19 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
 
     # CORS settings
-    CORS_ORIGINS: List[AnyHttpUrl] = []
+    CORS_ORIGINS: List[str] = []
 
     @field_validator("CORS_ORIGINS", mode="before")
-    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
-        if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
-            return v
-        raise ValueError(v)
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str):
+            try:
+                # Try to parse as JSON
+                return json.loads(v)
+            except json.JSONDecodeError:
+                # If not JSON, treat as comma-separated
+                if not v.startswith("["):
+                    return [i.strip() for i in v.split(",")]
+        return v if isinstance(v, list) else []
 
     # Database settings
     POSTGRES_SERVER: str = "localhost"
@@ -40,16 +45,30 @@ class Settings(BaseSettings):
     DATABASE_URI: Optional[PostgresDsn] = None
 
     @field_validator("DATABASE_URI", mode="before")
-    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+    def assemble_db_connection(cls, v: Optional[str], info) -> Any:
         if isinstance(v, str):
             return v
+
+        # Get values from the model data
+        postgres_user = info.data.get("POSTGRES_USER", "postgres")
+        postgres_password = info.data.get("POSTGRES_PASSWORD", "postgres")
+        postgres_server = info.data.get("POSTGRES_SERVER", "localhost")
+        postgres_port = info.data.get("POSTGRES_PORT", "5432")
+        postgres_db = info.data.get("POSTGRES_DB", "contract_management")
+
+        # Convert port to integer
+        try:
+            port_int = int(postgres_port)
+        except (ValueError, TypeError):
+            port_int = 5432  # Default PostgreSQL port
+
         return PostgresDsn.build(
             scheme="postgresql",
-            username=values.get("POSTGRES_USER"),
-            password=values.get("POSTGRES_PASSWORD"),
-            host=values.get("POSTGRES_SERVER"),
-            port=values.get("POSTGRES_PORT"),
-            path=f"{values.get('POSTGRES_DB') or ''}",
+            username=postgres_user,
+            password=postgres_password,
+            host=postgres_server,
+            port=port_int,  # Use integer port
+            path=f"{postgres_db}",
         )
 
     # Redis settings
