@@ -1,2 +1,2 @@
-frontend/** linguist-vendored=false
-backend/** linguist-vendored=false
+frontend/* linguist-detectable=true
+backend/* linguist-detectable=true
